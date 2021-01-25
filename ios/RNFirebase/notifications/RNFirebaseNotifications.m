@@ -105,12 +105,17 @@ RCT_EXPORT_METHOD(complete:(NSString*)handlerKey fetchResult:(UIBackgroundFetchR
         void (^fetchCompletionHandler)(UIBackgroundFetchResult) = fetchCompletionHandlers[handlerKey];
         if (fetchCompletionHandler != nil) {
             fetchCompletionHandlers[handlerKey] = nil;
-            fetchCompletionHandler(fetchResult);
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                fetchCompletionHandler(fetchResult);
+	    });
+
         } else {
             void(^completionHandler)(void) = completionHandlers[handlerKey];
             if (completionHandler != nil) {
                 completionHandlers[handlerKey] = nil;
-                completionHandler();
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                 completionHandler();
+                });
             }
         }
     }
